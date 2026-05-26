@@ -1,0 +1,121 @@
+# DFECPIMS
+## Digital Forensics Evidence Collection and Process Integrity Management System
+
+---
+
+### Architecture Overview
+
+```
+dfecpims/
+├── backend/
+│   ├── app/
+│   │   ├── models/          # SQLAlchemy ORM models (Module 1 — complete)
+│   │   ├── core/            # Database engine, config, security utilities
+│   │   ├── api/             # FastAPI route handlers (Modules 2–7)
+│   │   ├── services/        # Business logic layer
+│   │   └── schemas/         # Pydantic request/response schemas
+│   ├── migrations/
+│   │   ├── audit_trigger.sql  # INSERT-only trigger — run manually after schema creation
+│   │   └── init_schema.py     # Schema creation script (alternative to Alembic)
+│   └── requirements.txt
+└── frontend/                # React + Tailwind (Module 8)
+```
+
+---
+
+### Module Build Status
+
+| # | Module | Status |
+|---|--------|--------|
+| 1 | Database Models | ✅ Complete |
+| 2 | Auth System (JWT + roles) | 🔜 Next |
+| 3 | Case Management API | 🔜 |
+| 4 | Evidence Ingestion API | 🔜 |
+| 5 | Audit Log Engine | 🔜 |
+| 6 | Hash Verification Endpoint | 🔜 |
+| 7 | PDF Report Generator | 🔜 |
+| 8 | React Frontend | 🔜 |
+
+---
+
+### Setup (Module 1)
+
+#### 1. PostgreSQL
+
+```bash
+createdb dfecpims
+createuser dfecpims -P   # set password: dfecpims (dev only)
+psql -d dfecpims -c "GRANT ALL ON DATABASE dfecpims TO dfecpims;"
+```
+
+#### 2. Python environment
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+#### 3. Environment variables
+
+```bash
+cp .env.example .env
+# Edit .env — set DATABASE_URL and SECRET_KEY at minimum
+```
+
+#### 4. Create schema
+
+```bash
+python migrations/init_schema.py
+```
+
+#### 5. Install audit log trigger (REQUIRED — do not skip)
+
+```bash
+psql -d dfecpims -f migrations/audit_trigger.sql
+```
+
+Verify:
+```sql
+-- Should raise an exception:
+INSERT INTO audit_log (id, action, timestamp) VALUES ('test', 'TEST', NOW());
+UPDATE audit_log SET action = 'TAMPERED' WHERE id = 'test';
+-- Expected: ERROR: audit_log is append-only: UPDATE is not permitted
+```
+
+---
+
+### Database Schema Notes
+
+#### Case IDs — `CASE-YYYY-NNNN`
+Generated at application layer using a per-year sequence counter (`case_sequence` table).
+The counter is incremented inside a `SELECT FOR UPDATE` transaction to prevent duplicates
+under concurrent requests.
+
+#### Evidence IDs — `EV-NNN`
+Global counter in `evidence_sequence` table (single row). Same concurrency approach.
+
+#### Audit Log — Append-Only
+The `audit_log` table has PostgreSQL-level `BEFORE UPDATE`, `BEFORE DELETE`, and
+`BEFORE TRUNCATE` triggers that raise exceptions for any mutation attempt.
+This is not an application-level restriction — it is enforced by the database engine
+regardless of which user or process issues the query.
+
+#### Timestamps
+All timestamps are `TIMESTAMP WITH TIME ZONE` (`DateTime(timezone=True)` in SQLAlchemy).
+Application layer always sets them as `datetime.now(timezone.utc)`.
+
+---
+
+### Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.12 + FastAPI |
+| Database | PostgreSQL 16 + SQLAlchemy 2.0 (async) |
+| Auth | JWT (python-jose) + bcrypt (passlib) |
+| File hashing | Python `hashlib` — SHA-256, server-side only |
+| PDF export | ReportLab |
+| Frontend | React 18 + Tailwind CSS |
+| Async driver | asyncpg |

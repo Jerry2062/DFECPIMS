@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar — dark terminal style */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #0d1117; }
+  ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #6e7681; }
+}
+
+@layer components {
+  /* Scanline overlay for terminal sections */
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Hash display — always monospace, always blue-tinted */
+  .hash-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #58a6ff;
+    word-break: break-all;
+    letter-spacing: 0.02em;
+  }
+
+  /* Terminal-style input */
+  .terminal-input {
+    @apply bg-terminal-surface border border-terminal-border rounded px-3 py-2
+           text-terminal-text font-mono text-sm
+           focus:outline-none focus:border-terminal-blue focus:ring-1 focus:ring-terminal-blue
+           placeholder-terminal-muted transition-colors;
+  }
+
+  /* Severity badges */
+  .badge-low      { @apply bg-terminal-green/20 text-terminal-green border border-terminal-green/40; }
+  .badge-medium   { @apply bg-terminal-orange/20 text-terminal-orange border border-terminal-orange/40; }
+  .badge-high     { @apply bg-terminal-red/20 text-terminal-red border border-terminal-red/40; }
+  .badge-critical { @apply bg-red-900/40 text-red-300 border border-red-700/60; }
+
+  /* Status badges */
+  .badge-active      { @apply bg-terminal-blue/20 text-terminal-blue border border-terminal-blue/40; }
+  .badge-underreview { @apply bg-terminal-orange/20 text-terminal-orange border border-terminal-orange/40; }
+  .badge-archived    { @apply bg-terminal-muted/20 text-terminal-muted border border-terminal-muted/40; }
+  .badge-closed      { @apply bg-terminal-surface text-terminal-muted border border-terminal-border; }
+
+  /* Integrity status */
+  .badge-verified { @apply bg-terminal-green/20 text-terminal-green border border-terminal-green/40; }
+  .badge-failed   { @apply bg-terminal-red/20 text-terminal-red border border-terminal-red/40; }
+  .badge-pending  { @apply bg-terminal-muted/20 text-terminal-muted border border-terminal-muted/40; }
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-terminal-accent text-white font-medium px-4 py-2 rounded
+           hover:bg-blue-500 active:bg-blue-700
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors text-sm;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply border border-terminal-border text-terminal-muted px-4 py-2 rounded
+           hover:border-terminal-blue hover:text-terminal-blue
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors text-sm;
+  }
+
+  /* Danger button */
+  .btn-danger {
+    @apply bg-terminal-red/20 text-terminal-red border border-terminal-red/40 px-4 py-2 rounded
+           hover:bg-terminal-red/30
+           disabled:opacity-40 disabled:cursor-not-allowed
+           transition-colors text-sm;
+  }
+
+  /* Card surface */
+  .card {
+    @apply bg-terminal-surface border border-terminal-border rounded-lg;
+  }
+
+  /* Table row hover */
+  .table-row-hover {
+    @apply hover:bg-terminal-border/30 transition-colors cursor-pointer;
+  }
+}
+
+/* Glow animation for active elements */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(63, 185, 80, 0.4); }
+  50%       { box-shadow: 0 0 12px rgba(63, 185, 80, 0.8); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Terminal cursor blink */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  color: #3fb950;
+  margin-left: 2px;
+}

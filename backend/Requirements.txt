@@ -7,7 +7,7 @@ uvicorn[standard]==0.30.6
 
 # Database
 sqlalchemy==2.0.35
-asyncpg==0.29.0          # Async PostgreSQL driver for SQLAlchemy async engine
+asyncpg==0.30.0         # Async PostgreSQL driver for SQLAlchemy async engine
 alembic==1.13.3          # Database migrations (optional if using init_schema.py)
 
 # Auth
@@ -21,7 +21,7 @@ reportlab==4.2.2
 # Utilities
 python-dotenv==1.0.1     # Load .env files for local development
 aiofiles==24.1.0         # Async file I/O for evidence storage
-python-magic==0.4.27     # MIME type detection from file bytes (not extension)
+python-magic-bin==0.4.14     # MIME type detection from file bytes (not extension)
 
 # Development / testing
 pytest==8.3.3

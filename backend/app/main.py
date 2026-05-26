@@ -23,7 +23,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.audit import router as audit_router
 from app.api.auth import router as auth_router
+from app.api.cases import router as cases_router
+from app.api.evidence import router as evidence_router
+from app.api.reports import router as reports_router
+from app.api.verification import router as verification_router
 from app.core.database import engine
 
 
@@ -104,12 +109,11 @@ app.add_middleware(
 API_PREFIX = "/api/v1"
 
 app.include_router(auth_router, prefix=API_PREFIX)
-# Remaining routers (cases, evidence, audit, reports) will be registered
-# here as each module is built:
-#   app.include_router(cases_router, prefix=API_PREFIX)
-#   app.include_router(evidence_router, prefix=API_PREFIX)
-#   app.include_router(audit_router, prefix=API_PREFIX)
-#   app.include_router(reports_router, prefix=API_PREFIX)
+app.include_router(cases_router, prefix=API_PREFIX)
+app.include_router(evidence_router, prefix=API_PREFIX)
+app.include_router(audit_router, prefix=API_PREFIX)
+app.include_router(verification_router, prefix=API_PREFIX)
+app.include_router(reports_router, prefix=API_PREFIX)
 
 
 # ─── Health check ─────────────────────────────────────────────────────────────
